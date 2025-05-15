@@ -1,0 +1,71 @@
+{
+  "model": {
+      "image_size": 64,
+      "in_channels": 3,
+      "num_channels": 192,
+      "num_res_blocks": 3,
+      "unet_type": "adm",
+      "channel_mult": "",
+      "learn_sigma": false,
+      "class_cond": false,
+      "use_checkpoint": false,
+      "attention_resolutions": "32,16,8",
+      "num_heads": 4,
+      "num_head_channels": 64,
+      "num_heads_upsample": -1,
+      "use_scale_shift_norm": true,
+      "dropout": 0.1,
+      "resblock_updown": true,
+      "use_fp16": true,
+      "use_new_attention_order": false,
+      "attention_type": "flash",
+      "condition_mode": "concat"
+  },
+  "diffusion": {
+      "sigma_data": 0.5,
+      "sigma_min": 1e-4,
+      "sigma_max": 1,
+      "cov_xy": 0.125,
+      "pred_mode": "vpv2",
+      "weight_schedule": "sibm"
+  },
+  "dataset": {
+    "dataset": "edges2handbags",
+    "exp": "e2h",
+    "num_workers": 8,
+    "data_dir": "/datasets/edges2handbags"
+  },
+  "train": {
+    "lr": 1e-4,
+    "weight_decay": 0,
+    "lr_anneal_steps": 50000,
+    "global_batch_size": 2048,
+    "batch_size": 200,
+    "microbatch": -1,
+    "ema_rate": 0.9999,
+    "log_interval": 50,
+    "test_interval": 500,
+    "save_interval": 100000,
+    "save_interval_for_preemption": 20000,
+    "resume_checkpoint": "",
+    "fp16_scale_growth": 1e-3,
+    "debug": false,
+    "schedule_sampler": "real-uniform",
+    "use_augment": true
+  },
+  "sample":{
+    "seed": 42,
+    "rho": 7,
+    "num_workers":8,
+    "clip_denoised": true,
+    "sampler": "heun",
+    "guidance": 1,
+    "num_samples": 200,
+    "split": "train",
+    "steps": 40,
+    "churn_step_ratio": 0.99,
+    "sigma_min": 1e-3,
+    "sigma_max": 1,
+    "route_scaling": 0
+  }
+}
