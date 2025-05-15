@@ -1,12 +1,9 @@
 This repo builds on top of the official [DDBM](https://github.com/alexzhou907/DDBM)
 
 # Installation
-## Download DDBM pretrained checkpoints from [hugging face](https://huggingface.co/alexzhou907/DDBM)
+## pretrained checkpoints 
 
-| Description                                         | File                                      |
-|-----------------------------------------------------|-------------------------------------------|
-|                   DIODE checkpoint                  |           ddbm_diode_vp_ema.pt            |
-
+Download DDBM pretrained checkpoints from [hugging face](https://huggingface.co/alexzhou907/DDBM)
 
 Save checkpoints at folder weights/diode_ema_0.9999_440000.pt
 
