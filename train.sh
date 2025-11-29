@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Define the variables
-GPU=1
+GPU=2
 SESSION_NAME="diode64"
-PRED_MODE="linear1"
+PRED_MODE="linear0.25"
 SUFFIX=""
 CONFIG_DIR="./configs/config_diode64.json"
 SMOOTH=0
