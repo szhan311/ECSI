@@ -214,83 +214,6 @@ def sample_stoch(
 
     return x, path, x0_est
 
-
-# @th.no_grad()
-def sample_guidance(
-    denoiser,
-    x,
-    sigmas,
-    route,
-    device,
-    progress=False,
-    callback=None,
-    churn_step_ratio=0.,
-    route_scaling = 0,
-    smooth = 0
-):
-    x_T = x
-    x = x + smooth * th.randn_like(x)
-    x_T_s = x # smoothed x_T
-    # path = [x.detach().cpu()]
-    
-    s_in = x.new_ones([x.shape[0]])
-    indices = range(len(sigmas) - 1)
-    if progress:
-        from tqdm.auto import tqdm
-
-        indices = tqdm(indices)
-
-    nfe = 0 # number of function evaluations
-    ref_img_path = f'./samples/real_images/e2h.pt'
-    # ref_imgs = th.load(ref_img_path)[:len(x)].to(device)
-    ref_imgs = th.load(ref_img_path)[0].unsqueeze(0).repeat(len(x), 1, 1, 1).to(device)
-    
-    feature_extractor = th.hub.load('pytorch/vision:v0.10.0', 
-                                     'resnet18', 
-                                     pretrained=True)
-    
-    # Remove final classification layer
-    feature_extractor = nn.Sequential(*list(feature_extractor.children())[:-1])
-    
-    # Initialize calculator
-    calculator = FeatureDifferenceCalculator(feature_extractor, device=device)
-    
-    ###########################################
-    alpha, alpha_deriv, beta, beta_deriv, gamma, gamma_deriv = route
-    # epsilon = lambda t: churn_step_ratio * (gamma(t) * gamma_deriv(t) - alpha_deriv(t) / alpha(t) * gamma(t) ** 2)
-    path = [x.detach().cpu()]
-    x0_est = [x.detach().cpu()]
-    for i in indices:
-        with th.no_grad():
-            x0_hat = denoiser(x, sigmas[i] * s_in, x_T)
-        # x0_hat.requires_grad_()
-        # residual = x0_hat - ref_imgs
-        # residual_norm = th.linalg.norm(residual) ** 2
-        # norm_grad = th.autograd.grad(outputs=residual_norm, inputs=x0_hat)[0]
-        feature_diff = calculator.calculate_feature_difference(ref_imgs, x0_hat)
-        # print("Feature difference shape:", feature_diff.shape)
-        residual = calculator.calculate_residual(feature_diff)
-        print("Residual:", th.mean(residual))
-        gradients = calculator.calculate_gradient(x0_hat, ref_imgs)
-        print("Gradients shape:", gradients.shape)
-        
-        if i<= 5:
-            x0_hat = x0_hat - 0.2 * (len(indices) - i) / (len(indices) + 1)* gradients
-        with th.no_grad():
-            x0_est.append(x0_hat.detach().cpu())
-            # dt = (sigmas[i+1] - sigmas[i])  
-            #  # DBIM
-            if i == 0:
-                x = alpha(sigmas[i+1]) * x0_hat + beta(sigmas[i+1]) * x_T_s + gamma(sigmas[i+1]) * th.randn_like(x) 
-            else:
-                x = alpha(sigmas[i+1]) * x0_hat + beta(sigmas[i+1]) * x_T_s + (gamma(sigmas[i+1]) / gamma(sigmas[i])) * (x - alpha(sigmas[i]) * x0_hat - beta(sigmas[i]) * x_T_s)
-            
-            nfe += 1
-            # print(f"nfe: {nfe}")
-            path.append(x.detach().cpu())
-
-    return x, path, x0_est
-
 def karras_sample(
     diffusion,
     model,
@@ -312,7 +235,7 @@ def karras_sample(
     guidance=1,
     smooth = 0
 ):
-    assert sampler in ["heun", "stoch", "guidance"]
+    assert sampler in ["heun", "stoch"]
     # sigmas = get_sigmas_karras(steps, 0.002, 1-1e-4, rho, device=device)
     # rho = 10.
     # sigma_min = 0.001
@@ -351,26 +274,9 @@ def karras_sample(
             callback=callback,
             **sampler_args,
         )
-    elif sampler == "guidance":
-        x_0, path, x0_est = sample_guidance(
-            denoiser,
-            x_T,
-            sigmas,
-            route,
-            device,
-            progress=progress,
-            callback=callback,
-            **sampler_args,
-        )
 
     return x_0.clamp(-1, 1), [x.clamp(-1, 1) for x in path], [x.clamp(-1, 1) for x in x0_est]
 
-
-def new_sigmas(sigmas):
-    right = sigmas[:-1]/2
-    right = right[:-1:2]
-    left = 1 - th.flip(right, dims=[0])
-    return th.concat([left, right, right.new_zeros([1])])
 
 
 def sample_loop(diffusion,
