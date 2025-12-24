@@ -228,9 +228,9 @@ def sample(config_dir,
                   
                   
       # calculate fid
-      # fid = compute_fid(real_imgs, sample_imgs, num_samples, batch_size, device)
-      # print(f"fid: {fid}")
-      # logger.log(f"fid: {fid}")
+      fid = compute_fid(real_imgs, sample_imgs, num_samples, batch_size, device)
+      print(f"fid: {fid}")
+      logger.log(f"fid: {fid}")
       
       # samples_ddbm = ((samples + 1) * 127.5).clip(0, 255)
       # samples_ddbm = samples_ddbm.transpose([0, 2, 3, 1])
@@ -243,7 +243,7 @@ def sample(config_dir,
             out_path = f'{save_img_path}/model_{model_id[:-4]}_n_{num_samples}_esr_{churn_step_ratio}_{split}_{steps}'
             # np.save(out_path, samples)
             th.save(sample_imgs, f"{out_path}.pt")
-            save_img_grid(sample_imgs[:64], f"{out_path}.jpg")
+            save_img_grid(sample_imgs[:64], f"{out_path}_fid_{fid.item():.2f}.jpg")
             save_img_grid(real_imgs[:64], f"{save_img_path}/real_image_{split}.jpg")
 
       dist.barrier()

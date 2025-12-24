@@ -212,5 +212,4 @@ wandb/
 samples/
 pretrained_models/
 pretrained_models_evaluation/
-pretrained_models/diode_vpv2/
-pretrained_models/e2h_vpv2/*.zip
+datasets/

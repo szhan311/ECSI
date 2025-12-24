@@ -144,22 +144,6 @@ def get_sigma(beta_d=2., beta_min=0.1, sigma_max=1.):
     snr = lambda t: 1 / sigma(t) ** 2
     return sigma, snr
 
-
-       
-        
-        # scheme 2
-        # if i >= len(indices) - 2:
-        #         diffusion_term, drift_term = to_d_stoch(x, x0_hat, x_T_s, alpha(sigmas[i]), alpha_deriv(sigmas[i]), beta(sigmas[i]), beta_deriv(sigmas[i]), gamma(sigmas[i]), gamma_deriv(sigmas[i]), 0)
-        #         x = x + diffusion_term * dt
-                # x = alpha(sigmas[i+1]) * x0_hat + beta(sigmas[i+1]) * x_T_s
-        # else:
-        #     z_hat = (x - alpha(sigmas[i]) * x0_hat - beta(sigmas[i]) * x_T_s) / gamma(sigmas[i])
-        #     z_bar = th.randn_like(x)
-        #     rho = (2 * epsilon(sigmas[i])) ** 0.5
-        #     assert gamma[sigmas[i-1]] ** 2 - rho ** 2 > 0
-        #     z = (gamma[sigmas[i-1]] ** 2 - rho ** 2) ** 0.5 * z_hat + rho * z_bar
-        #     x = alpha(sigmas[i+1]) * x0_hat + beta(sigmas[i+1]) * x_T_s + z
-        
 @th.no_grad()
 def sample_stoch(
     denoiser,
